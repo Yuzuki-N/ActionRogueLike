@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "SInteractionComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -20,6 +21,9 @@ ASCharacter::ASCharacter()
     CameraComp->SetupAttachment(SpringArmComp); 
 
     GetCharacterMovement()->bOrientRotationToMovement = true; // 角色朝向移动方向
+
+
+    InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
 
     bUseControllerRotationYaw = false; // 禁用角色的Yaw旋转控制
 }
@@ -52,6 +56,25 @@ void ASCharacter::MoveRight(float Value)
 	AddMovementInput(RightVec, Value);
 }
 
+void ASCharacter::PrimaryAttack()
+{
+    FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+    FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+void ASCharacter::PrimaryInteract()
+{
+    //if (InteractionComp != nullptr)
+    {
+        InteractionComp->PrimaryInteract();
+    }
+}
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {
@@ -69,5 +92,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
     PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+    PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
+    PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
 }
 
