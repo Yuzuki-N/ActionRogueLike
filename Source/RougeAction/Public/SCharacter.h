@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class USInteractionComponent;
+class UAnimMontage;
 
 UCLASS()
 class ROUGEACTION_API ASCharacter : public ACharacter
@@ -16,8 +17,16 @@ class ROUGEACTION_API ASCharacter : public ACharacter
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Attack")
     TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+    UAnimMontage* AttackAnim;
+
+    FTimerHandle TimerHandle_PrimaryAttack;
+
+
+
 
 public:
 	// Sets default values for this character's properties
@@ -38,10 +47,12 @@ protected:
 
     void MoveForward(float Value);
     void MoveRight(float Value);
+	void Jump();
 
 	void PrimaryAttack();
 	void PrimaryInteract();
 
+	void PrimaryAttack_TimeElapsed();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
