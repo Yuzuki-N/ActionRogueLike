@@ -3,6 +3,8 @@
 
 #include "SInteractionComponent.h"
 #include "SGameInterface.h"
+#include "DrawDebugHelpers.h"
+#include "CollisionShape.h"
 
 // Sets default values for this component's properties
 USInteractionComponent::USInteractionComponent()
@@ -20,25 +22,44 @@ void USInteractionComponent::PrimaryInteract()
 	FHitResult HitRes;
 	AActor* MyOwner = GetOwner();
 
-	FVector MyLocation;
+	FVector EyeLocation;
 	FRotator EyeRotation;
-	MyOwner->GetActorEyesViewPoint(MyLocation, EyeRotation);
-    FVector End = MyLocation + (EyeRotation.Vector() * 1000);
+	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+    FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
 
     FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	GetWorld()->LineTraceSingleByObjectType(HitRes, MyLocation, End, ObjectQueryParams);
-	
-	AActor* HitActor = HitRes.GetActor();
-	if (HitActor)
+	//bool bHitBlock = GetWorld()->LineTraceSingleByObjectType(HitRes, EyeLocation, End, ObjectQueryParams);
+
+
+	float Radius = 20.0f;
+	FCollisionShape Shape;
+    Shape.SetSphere(Radius); // 设置碰撞形状为半径为20的球体
+
+	TArray<FHitResult> Hits;
+	bool bHitBlock = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, 
+		FQuat::Identity, ObjectQueryParams, Shape);
+
+	FColor HitColor = bHitBlock ? FColor::Green : FColor::Red;
+
+	for (const FHitResult& Hit : Hits)
 	{
-		if (HitActor->Implements<USGameInterface>())
+		AActor* HitActor = Hit.GetActor();
+
+		if (HitActor)
 		{
-            APawn* MyPawn = Cast<APawn>(MyOwner);
-			// hitActor是调用者, MyPawn是函数的参数
-            ISGameInterface::Execute_Interact(HitActor, MyPawn);
+			if (HitActor->Implements<USGameInterface>())
+			{
+				APawn* MyPawn = Cast<APawn>(MyOwner);
+				// hitActor是调用者, MyPawn是函数的参数
+				ISGameInterface::Execute_Interact(HitActor, MyPawn);
+				break;
+			}
 		}
+        DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 12, HitColor, false, 2.0f);
 	}
+
+	DrawDebugLine(GetWorld(), EyeLocation, End, HitColor, false, 2.0f, 0, 0);
 }
 
 // Called when the game starts
