@@ -19,7 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	ASMagicProjectile();
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     USphereComponent* SphereComp;
 
 	UPROPERTY(VisibleAnywhere)
