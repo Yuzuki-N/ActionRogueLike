@@ -10,6 +10,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class USInteractionComponent;
 class UAnimMontage;
+class USAttributeComponent;
 
 UCLASS()
 class ROUGEACTION_API ASCharacter : public ACharacter
@@ -26,6 +27,8 @@ protected:
     FTimerHandle TimerHandle_PrimaryAttack;
 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+    USAttributeComponent* AttributeComp;
 
 
 public:

@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
+#include "SAttributeComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -21,11 +22,10 @@ ASCharacter::ASCharacter()
     CameraComp->SetupAttachment(SpringArmComp); 
 
     GetCharacterMovement()->bOrientRotationToMovement = true; // 角色朝向移动方向
-
-
     InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
-
     bUseControllerRotationYaw = false; // 禁用角色的Yaw旋转控制
+
+    AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 }
 
 // Called when the game starts or when spawned
@@ -58,7 +58,7 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::Jump()
 {
-    Super().Jump();
+    ACharacter::Jump();
 }
 
 void ASCharacter::PrimaryAttack()
@@ -107,7 +107,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-    if (ensure(ProjectileClass))
+    // ensure会直接在这里抛异常，但只是第一次，可以用ensureAlways,这样每次都会抛异常
+    // 不会再最终打包的地方运行
+    if (ensureAlways(ProjectileClass))
     {
         FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
         FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
