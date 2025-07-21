@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "SAttributeComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChange, AActor*, InstigatorActor, 
+    USAttributeComponent*, OwningComp, float, Health, float, Delta);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ROUGEACTION_API USAttributeComponent : public UActorComponent
@@ -23,6 +25,9 @@ protected:
 
 
 public:
+
+    UPROPERTY(BlueprintAssignable)
+    FOnHealthChange OnHealthChanged;
 
     UFUNCTION(BlueprintCallable, Category = "Attributes")
     bool ApplyHealthChange(float Delta);
