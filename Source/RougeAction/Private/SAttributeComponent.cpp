@@ -20,8 +20,9 @@ bool USAttributeComponent::ApplyHealthChange(float Delta)
 {
     Health += Delta;
 
-    OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
-
+    //OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+    // 上面的代码会报错，InstigatorActor设置为nullptr会错误，遇到这种问题不知道要怎么排查，ue直接闪退了
+    OnHealthChanged.Broadcast(GetOwner(), this, Health, Delta);
     return true;
 }
 
