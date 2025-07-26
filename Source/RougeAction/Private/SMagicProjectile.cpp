@@ -15,6 +15,7 @@ ASMagicProjectile::ASMagicProjectile()
     SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
     // 从编辑器创建了Projectile的碰撞预设
     SphereComp->SetCollisionProfileName("Projectile");
+    // 这里绑定了一个动态事件，当SphereComp与其他Actor发生重叠时会调用OnActorOverlap函数
     SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
     RootComponent = SphereComp;
 
@@ -38,7 +39,7 @@ void ASMagicProjectile::BeginPlay()
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)  
 {  
-    if (OtherActor)  
+    if (OtherActor && OtherActor != GetInstigator())  
     {  
         USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));  
 
@@ -46,7 +47,6 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComp, AAct
         {  
             AttributeComp->ApplyHealthChange(-20.0f);  
             Destroy(); // 销毁投射物  
-            UE_LOG(LogTemp, Log, TEXT("ApplyHealthChange, Health: %d"), FPlatformTLS::GetCurrentThreadId());
         }  
     }  
 }

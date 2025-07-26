@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "TestActor.generated.h"
 
+class USAttributeComponent;
+
 UCLASS()
 class ROUGEACTION_API ATestActor : public AActor
 {
@@ -18,6 +20,16 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere)
+    USAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere)
+    UStaticMeshComponent* MeshComp;
+
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* Inst, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 public:	
 	// Called every frame
